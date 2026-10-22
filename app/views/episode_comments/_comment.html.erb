@@ -1,0 +1,15 @@
+<div id="<%= dom_id(comment) %>" class="p-3.5 rounded-xl bg-zinc-950/80 border border-zinc-800/80 space-y-1.5 transition-all">
+  <div class="flex items-center justify-between text-xs">
+    <div class="flex items-center gap-2">
+      <span class="text-sm"><%= comment.reaction_icon %></span>
+      <span class="font-bold text-zinc-200"><%= comment.user_name %></span>
+      <span class="text-[10px] text-purple-400 font-semibold px-2 py-0.5 rounded-full bg-purple-950/50 border border-purple-500/30 uppercase">
+        <%= comment.reaction_type %>
+      </span>
+    </div>
+    <span class="text-[10px] text-zinc-500"><%= time_ago_in_words(comment.created_at) %> ago</span>
+  </div>
+  <p class="text-xs text-zinc-300 leading-relaxed pl-6">
+    <%= comment.body %>
+  </p>
+</div>

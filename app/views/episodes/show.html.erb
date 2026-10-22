@@ -1,0 +1,360 @@
+<% content_for :title, "Ep #{@episode.episode_number} - #{@episode.title} | #{@anime.title} - Anime Sym" %>
+
+<div class="bg-black/90 min-h-screen py-6 md:py-8" data-controller="theater embedded-player">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 space-y-6">
+    
+    <!-- Top Breadcrumb Bar -->
+    <div class="flex items-center justify-between text-xs text-zinc-400">
+      <nav class="flex items-center gap-2">
+        <%= link_to "Home", root_path, class: "hover:text-purple-400" %>
+        <span>/</span>
+        <%= link_to "Catalog", catalog_path, class: "hover:text-purple-400" %>
+        <span>/</span>
+        <%= link_to @anime.title, anime_path(@anime), class: "hover:text-purple-400 truncate max-w-[200px]" %>
+        <span>/</span>
+        <span class="text-zinc-200 font-semibold">Episode <%= @episode.episode_number %></span>
+      </nav>
+
+      <div class="hidden sm:flex items-center gap-2">
+        <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-emerald-950/60 border border-emerald-500/40 text-emerald-400 text-[11px] font-semibold">
+          <%= anime_sym_icon("check", class: "w-3 h-3 text-emerald-400") %>
+          Official <%= @episode.channel_name %> Stream
+        </span>
+      </div>
+    </div>
+
+    <!-- Main Grid: Video Player Column + Episode Selector Sidebar -->
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+      
+      <!-- Video Player Column (8 cols in standard mode, 12 in theater mode) -->
+      <div data-theater-target="playerContainer" class="lg:col-span-8 space-y-4 transition-all duration-300">
+        
+        <!-- Video Screen 16:9 Frame -->
+        <div class="relative w-full aspect-video bg-black rounded-2xl overflow-hidden shadow-2xl border border-zinc-800 glow-purple-sm">
+          <iframe 
+            id="anime_sym_yt_player"
+            data-embedded-player-target="iframe"
+            src="<%= @episode.youtube_embed_url %>" 
+            title="<%= @anime.title %> - Ep <%= @episode.episode_number %>: <%= @episode.title %>"
+            class="w-full h-full"
+            frameborder="0"
+            allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
+            allowfullscreen>
+          </iframe>
+
+          <!-- Fallback Error Overlay for Regional Restriction / Disabled Embedding -->
+          <div data-embedded-player-target="errorOverlay" 
+               class="hidden absolute inset-0 bg-zinc-950/95 backdrop-blur-md flex flex-col items-center justify-center p-6 text-center z-20 transition-opacity duration-300 opacity-0">
+            <div class="w-14 h-14 rounded-2xl bg-amber-950/60 border border-amber-500/40 flex items-center justify-center text-amber-400 mb-3 shadow-lg">
+              <%= anime_sym_icon("info", class: "w-8 h-8") %>
+            </div>
+            <h3 class="text-lg font-bold text-white mb-1">Playback Unavailable in Embedded Player</h3>
+            <p data-embedded-player-target="errorMessage" class="text-xs text-zinc-300 max-w-md mb-4 leading-relaxed">
+              This episode is an official broadcast published by <%= @episode.channel_name %>. Because of regional licensing rules or embedding preferences set by the studio, you may view it on the official channel directly.
+            </p>
+            <div class="flex flex-wrap items-center justify-center gap-3">
+              <%= link_to @episode.official_watch_url, target: "_blank", rel: "noopener noreferrer", class: "px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-lg shadow-purple-600/30 transition-all flex items-center gap-1.5" do %>
+                <span>Open Official Video</span>
+                <%= anime_sym_icon("external-link", class: "w-3.5 h-3.5") %>
+              <% end %>
+              <button type="button" 
+                      data-action="click->embedded-player#hideError" 
+                      class="px-3.5 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold transition-colors">
+                Back to Player
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Video Controls Bar -->
+        <div class="flex flex-wrap items-center justify-between gap-3 p-4 rounded-xl bg-zinc-900/90 border border-zinc-800 backdrop-blur-md">
+          
+          <!-- Prev / Next Episode Buttons -->
+          <div class="flex items-center gap-2">
+            <% if @previous_episode %>
+              <%= link_to anime_episode_path(@anime, @previous_episode), class: "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-white transition-colors" do %>
+                <%= anime_sym_icon("chevron-left", class: "w-4 h-4") %>
+                <span class="hidden sm:inline">Prev Ep</span>
+              <% end %>
+            <% else %>
+              <button disabled class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-zinc-900 border border-zinc-800/60 text-xs font-semibold text-zinc-600 cursor-not-allowed">
+                <%= anime_sym_icon("chevron-left", class: "w-4 h-4") %>
+                <span class="hidden sm:inline">Prev Ep</span>
+              </button>
+            <% end %>
+
+            <span class="px-3 py-1.5 rounded-lg bg-zinc-950 border border-zinc-800 text-xs font-bold text-purple-400">
+              Episode <%= @episode.episode_number %> / <%= @anime.total_episodes %>
+            </span>
+
+            <% if @next_episode %>
+              <%= link_to anime_episode_path(@anime, @next_episode), class: "inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-purple-600 hover:bg-purple-500 text-xs font-semibold text-white transition-colors shadow-md shadow-purple-600/30" do %>
+                <span class="hidden sm:inline">Next Ep</span>
+                <%= anime_sym_icon("chevron-right", class: "w-4 h-4") %>
+              <% end %>
+            <% else %>
+              <button disabled class="inline-flex items-center gap-1.5 px-3.5 py-2 rounded-lg bg-zinc-900 border border-zinc-800/60 text-xs font-semibold text-zinc-600 cursor-not-allowed">
+                <span class="hidden sm:inline">Next Ep</span>
+                <%= anime_sym_icon("chevron-right", class: "w-4 h-4") %>
+              </button>
+            <% end %>
+          </div>
+
+          <!-- Player Features: Mark Watched, Theater Mode, Playlist Link -->
+          <div class="flex items-center gap-2">
+            <!-- Mark as Watched Toggle -->
+            <% is_watched = watched_episode?(@episode) %>
+            <%= link_to anime_episode_path(@anime, @episode, mark_watched: is_watched ? "false" : "true"), 
+                        class: "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-semibold transition-all #{is_watched ? 'bg-emerald-950/80 border border-emerald-500/50 text-emerald-300' : 'bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white'}",
+                        title: is_watched ? "Mark as unwatched" : "Mark as watched" do %>
+              <%= anime_sym_icon("check", class: "w-3.5 h-3.5 #{is_watched ? 'text-emerald-400' : 'text-zinc-400'}") %>
+              <span><%= is_watched ? "Watched" : "Mark Watched" %></span>
+            <% end %>
+
+            <!-- Theater Mode Button -->
+            <button type="button" 
+                    data-action="click->theater#toggleTheater"
+                    class="hidden md:inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-xs font-semibold text-zinc-300 hover:text-white transition-colors"
+                    title="Toggle wide screen mode">
+              <%= anime_sym_icon("tv", class: "w-3.5 h-3.5") %>
+              <span data-theater-target="theaterButtonText">Theater Mode</span>
+            </button>
+
+            <!-- Official Playlist Link -->
+            <% if @episode.official_playlist_url.present? %>
+              <%= link_to @episode.official_playlist_url, target: "_blank", rel: "noopener noreferrer", 
+                          class: "inline-flex items-center gap-1.5 px-3 py-2 rounded-lg bg-red-950/40 border border-red-500/30 text-red-300 hover:bg-red-900/50 text-xs font-semibold transition-colors",
+                          title: "Open official YouTube playlist" do %>
+                <%= anime_sym_icon("youtube", class: "w-4 h-4 text-red-400") %>
+                <span class="hidden sm:inline">Official Playlist</span>
+              <% end %>
+            <% end %>
+
+            <!-- Copy Link Button -->
+            <button type="button" 
+                    data-action="click->theater#copyShareLink"
+                    class="p-2 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white transition-colors"
+                    title="Share this episode">
+              <%= anime_sym_icon("share", class: "w-4 h-4") %>
+            </button>
+          </div>
+
+        </div>
+
+        <!-- Verified Channel Details & Playback Assistance Bar -->
+        <div class="p-4 rounded-xl bg-zinc-900/70 border border-zinc-800 text-xs text-zinc-400 space-y-2.5">
+          <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+            <div class="flex flex-wrap items-center gap-2">
+              <span class="inline-flex items-center gap-1 px-2.5 py-0.5 rounded-md bg-purple-950/80 border border-purple-500/30 text-purple-300 font-bold text-[11px]">
+                <%= anime_sym_icon("check", class: "w-3 h-3 text-emerald-400") %>
+                Verified Licensor: <%= @episode.channel_name %>
+              </span>
+              <span class="text-[11px] font-mono text-zinc-500">Channel ID: <%= @episode.channel_id %></span>
+            </div>
+
+            <div class="flex items-center gap-3">
+              <%= link_to @episode.channel_url, target: "_blank", rel: "noopener noreferrer", class: "text-purple-400 hover:text-purple-300 font-semibold flex items-center gap-1 text-[11px]" do %>
+                <span><%= @episode.channel_name %> on YouTube</span>
+                <%= anime_sym_icon("external-link", class: "w-3 h-3") %>
+              <% end %>
+            </div>
+          </div>
+
+          <!-- Regional Restriction & Embed Info Notice -->
+          <div class="pt-2 border-t border-zinc-800/60 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 text-[11px] text-zinc-400">
+            <p class="leading-relaxed">
+              Playing within Anime Sym via YouTube's official embed player. If you see a "Video unavailable" notice due to regional geoblocking, you may also stream it directly on the publisher's channel.
+            </p>
+            <div class="flex items-center gap-2 shrink-0">
+              <button type="button" 
+                      data-action="click->embedded-player#reportIssue" 
+                      class="text-[10px] text-zinc-400 hover:text-zinc-200 underline">
+                Playback Help
+              </button>
+              <%= link_to "Watch on YouTube", @episode.official_watch_url, target: "_blank", rel: "noopener noreferrer", class: "px-2.5 py-1 rounded bg-zinc-800 hover:bg-zinc-700 text-zinc-300 hover:text-white font-medium transition-colors" %>
+            </div>
+          </div>
+        </div>
+
+        <!-- Copied Toast for Theater controller -->
+        <div data-theater-target="shareToast" 
+             class="fixed bottom-6 left-1/2 -translate-x-1/2 px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold shadow-2xl opacity-0 translate-y-2 pointer-events-none transition-all duration-300 z-50">
+          Episode link copied to clipboard!
+        </div>
+
+        <!-- Episode Details & Synopsis -->
+        <div class="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 space-y-4">
+          <div class="flex flex-col sm:flex-row sm:items-start justify-between gap-4">
+            <div>
+              <p class="text-xs font-bold text-purple-400 uppercase tracking-wider">
+                <%= link_to @anime.title, anime_path(@anime), class: "hover:underline" %>
+              </p>
+              <h1 class="text-xl sm:text-2xl font-black text-white mt-1">
+                Episode <%= @episode.episode_number %>: <%= @episode.title %>
+              </h1>
+            </div>
+
+            <!-- Licensor / Source Pill -->
+            <div class="shrink-0 px-3 py-1.5 rounded-xl bg-zinc-950 border border-zinc-800 flex items-center gap-2">
+              <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+              <span class="text-xs font-semibold text-zinc-300"><%= @episode.licensed_source %></span>
+            </div>
+          </div>
+
+          <div class="flex flex-wrap items-center gap-4 text-xs text-zinc-400 pt-1 border-t border-zinc-800/60">
+            <span>Air Date: <strong class="text-zinc-200"><%= @episode.aired_at ? @episode.aired_at.strftime("%B %d, %Y") : "Recent Release" %></strong></span>
+            <span>•</span>
+            <span>Duration: <strong class="text-zinc-200"><%= @episode.duration %></strong></span>
+            <span>•</span>
+            <span>Views: <strong class="text-zinc-200"><%= number_with_delimiter(@episode.views_count) %></strong></span>
+          </div>
+
+          <p class="text-sm text-zinc-300 leading-relaxed pt-2">
+            <%= @episode.synopsis.presence || "Official licensed streaming broadcast for Episode #{@episode.episode_number} of #{@anime.title}. Watch legally in high definition." %>
+          </p>
+        </div>
+
+        <!-- COMMUNITY REACTIONS & COMMENTS SECTION -->
+        <div class="p-6 rounded-2xl bg-zinc-900/60 border border-zinc-800/80 space-y-6">
+          <div class="flex items-center justify-between border-b border-zinc-800 pb-3">
+            <h3 class="text-lg font-bold text-white flex items-center gap-2">
+              <%= anime_sym_icon("sparkles", class: "w-5 h-5 text-purple-400") %>
+              <span>Episode Discussion & Fan Reactions</span>
+            </h3>
+            <span class="text-xs text-zinc-400" id="comments_count">
+              <%= @comments.count %> comments
+            </span>
+          </div>
+
+          <!-- Add Reaction / Comment Form with Turbo Stream -->
+          <%= form_with model: [@anime, @episode, @new_comment], 
+                        url: anime_episode_comments_path(@anime, @episode), 
+                        id: "new_episode_comment_form",
+                        class: "space-y-3" do |f| %>
+            
+            <div id="comment_form_errors"></div>
+
+            <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+              <div class="sm:col-span-4">
+                <%= f.text_field :user_name, 
+                      placeholder: "Your Name / Handle", 
+                      class: "w-full px-3.5 py-2 text-xs bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-purple-500" %>
+              </div>
+              <div class="sm:col-span-8">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] text-zinc-400 font-semibold uppercase shrink-0">Reaction:</span>
+                  <%= f.select :reaction_type, 
+                        options_for_select([
+                          ["🔥 Fire Sakuga", "fire"],
+                          ["⚡ Pure Hype", "hype"],
+                          ["😭 Emotional / Tears", "tears"],
+                          ["🤯 Mind Blown", "mindblown"],
+                          ["💖 Wholesome", "wholesome"]
+                        ], "fire"),
+                        {},
+                        class: "w-full px-3 py-2 text-xs bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-300 focus:outline-none focus:border-purple-500 cursor-pointer" %>
+                </div>
+              </div>
+            </div>
+
+            <div class="relative">
+              <%= f.text_area :body, 
+                    rows: 2, 
+                    placeholder: "Share your thoughts on this episode...", 
+                    required: true,
+                    class: "w-full p-3 text-sm bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50" %>
+            </div>
+
+            <div class="flex justify-end">
+              <%= f.submit "Post Impression", class: "px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-600/30 transition-all cursor-pointer" %>
+            </div>
+          <% end %>
+
+          <!-- Comments Feed (prepended via Turbo Stream) -->
+          <div id="episode_comments_list" class="space-y-3 pt-2">
+            <% @comments.each do |comment| %>
+              <%= render "episode_comments/comment", comment: comment %>
+            <% end %>
+          </div>
+
+        </div>
+
+      </div>
+
+      <!-- Episode Selector Sidebar (4 cols) -->
+      <div data-theater-target="sidebar" class="lg:col-span-4 space-y-4">
+        
+        <div class="rounded-2xl bg-zinc-900/80 border border-zinc-800/80 p-4 space-y-3">
+          <div class="flex items-center justify-between pb-2 border-b border-zinc-800">
+            <h3 class="font-bold text-sm text-white flex items-center gap-2">
+              <%= anime_sym_icon("layers", class: "w-4 h-4 text-purple-400") %>
+              <span>Episodes</span>
+            </h3>
+            <span class="text-xs text-zinc-400 font-medium"><%= @all_episodes.count %> in Season</span>
+          </div>
+
+          <!-- Scrollable Episode List -->
+          <div class="space-y-2 max-h-[600px] overflow-y-auto pr-1">
+            <% @all_episodes.each do |ep| %>
+              <% is_active = (ep.id == @episode.id) %>
+              <% is_watched_ep = watched_episode?(ep) %>
+
+              <%= link_to anime_episode_path(@anime, ep), 
+                          class: "flex items-center gap-3 p-2.5 rounded-xl transition-all #{is_active ? 'bg-purple-600/20 border border-purple-500/50 shadow-md shadow-purple-900/20' : 'bg-zinc-950/60 hover:bg-zinc-800/80 border border-zinc-800/60'}" do %>
+                
+                <!-- Small Thumbnail -->
+                <div class="relative w-16 h-10 rounded-lg overflow-hidden shrink-0 bg-black">
+                  <img src="<%= ep.thumbnail_url.presence || @anime.banner_url %>" 
+                       alt="Ep <%= ep.episode_number %> thumbnail" 
+                       class="w-full h-full object-cover">
+                  
+                  <% if is_active %>
+                    <div class="absolute inset-0 bg-purple-600/40 flex items-center justify-center">
+                      <%= anime_sym_icon("play", class: "w-4 h-4 text-white fill-current") %>
+                    </div>
+                  <% end %>
+                </div>
+
+                <!-- Info -->
+                <div class="flex-1 min-w-0">
+                  <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold <%= is_active ? 'text-purple-300' : 'text-zinc-200' %>">
+                      EP <%= ep.episode_number %>
+                    </span>
+                    <% if is_watched_ep %>
+                      <%= anime_sym_icon("check", class: "w-3 h-3 text-emerald-400") %>
+                    <% end %>
+                  </div>
+                  <p class="text-xs <%= is_active ? 'text-white font-semibold' : 'text-zinc-400' %> truncate mt-0.5">
+                    <%= ep.title %>
+                  </p>
+                </div>
+
+                <!-- Duration -->
+                <span class="text-[10px] text-zinc-500 font-mono shrink-0">
+                  <%= ep.duration %>
+                </span>
+              <% end %>
+            <% end %>
+          </div>
+
+        </div>
+
+        <!-- Series Quick Card -->
+        <div class="rounded-2xl bg-zinc-900/60 border border-zinc-800/80 p-4 flex items-center gap-3">
+          <img src="<%= @anime.poster_url %>" 
+               alt="<%= @anime.title %>" 
+               class="w-12 h-16 object-cover rounded-lg border border-zinc-700 shrink-0">
+          <div class="flex-1 min-w-0">
+            <h4 class="text-xs font-bold text-white truncate"><%= @anime.title %></h4>
+            <p class="text-[11px] text-zinc-400 mt-0.5"><%= @anime.studio %> • <%= @anime.release_year %></p>
+            <%= link_to "View Series Overview &rarr;".html_safe, anime_path(@anime), class: "inline-block text-[11px] font-semibold text-purple-400 hover:text-purple-300 mt-1" %>
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+</div>

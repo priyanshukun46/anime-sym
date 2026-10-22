@@ -1,0 +1,47 @@
+<!-- Trailer Modal Lightbox -->
+<div data-trailer-modal-target="modal" 
+     class="hidden fixed inset-0 z-50 flex items-center justify-center p-4 sm:p-6 opacity-0 transition-opacity duration-300">
+  
+  <!-- Backdrop -->
+  <div data-trailer-modal-target="backdrop" 
+       class="absolute inset-0 bg-black/90 backdrop-blur-xl"
+       data-action="click->trailer-modal#close"></div>
+
+  <!-- Content Box -->
+  <div data-trailer-modal-target="content" 
+       class="relative w-full max-w-4xl bg-zinc-900 border border-zinc-800 rounded-2xl overflow-hidden shadow-2xl transform scale-95 transition-transform duration-300 z-10">
+    
+    <!-- Modal Bar -->
+    <div class="flex items-center justify-between px-6 py-4 bg-zinc-950/80 border-b border-zinc-800">
+      <div class="flex items-center gap-3">
+        <span class="w-2.5 h-2.5 rounded-full bg-purple-500 animate-pulse"></span>
+        <h3 data-trailer-modal-target="title" class="font-bold text-white text-base md:text-lg truncate">
+          Official Trailer Preview
+        </h3>
+      </div>
+      <button type="button" 
+              class="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors"
+              data-action="click->trailer-modal#close"
+              aria-label="Close modal">
+        <%= anime_sym_icon("close", class: "w-5 h-5") %>
+      </button>
+    </div>
+
+    <!-- Iframe Container 16:9 -->
+    <div class="relative w-full aspect-video bg-black">
+      <div data-trailer-modal-target="iframeContainer" class="w-full h-full">
+        <!-- Injected via Stimulus -->
+      </div>
+    </div>
+
+    <!-- Modal Footer note -->
+    <div class="px-6 py-3 bg-zinc-950/90 text-xs text-zinc-400 flex items-center justify-between">
+      <span>Official stream broadcast via YouTube NOCookie embed</span>
+      <button type="button" 
+              class="text-purple-400 hover:text-purple-300 font-semibold"
+              data-action="click->trailer-modal#close">
+        Close Window
+      </button>
+    </div>
+  </div>
+</div>

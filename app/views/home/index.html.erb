@@ -1,0 +1,311 @@
+<!-- HERO SPOTLIGHT SECTION -->
+<section class="relative w-full min-h-[580px] lg:min-h-[720px] overflow-hidden bg-zinc-950" 
+         data-controller="hero-carousel"
+         data-action="mouseenter->hero-carousel#stopAutoplay mouseleave->hero-carousel#startAutoplay">
+  
+  <!-- Slides Container -->
+  <div class="relative w-full h-[580px] lg:h-[720px]">
+    <% @hero_slides.each_with_index do |anime, index| %>
+      <div data-hero-carousel-target="slide" 
+           class="absolute inset-0 transition-opacity duration-1000 ease-in-out <%= index == 0 ? 'opacity-100 z-10' : 'opacity-0 pointer-events-none z-0' %>">
+        
+        <!-- Banner Image Backdrop -->
+        <div class="absolute inset-0 w-full h-full">
+          <img src="<%= anime.banner_url %>" 
+               alt="<%= anime.title %>" 
+               class="w-full h-full object-cover object-center filter brightness-[0.45] contrast-[1.1]">
+          <!-- Cinematic Multi-layer Gradients -->
+          <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/70 to-transparent"></div>
+          <div class="absolute inset-0 bg-gradient-to-r from-zinc-950 via-zinc-950/80 to-transparent"></div>
+          <div class="absolute inset-0 bg-radial-at-c from-transparent via-zinc-950/40 to-zinc-950"></div>
+        </div>
+
+        <!-- Hero Content Overlay -->
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center">
+          <div class="max-w-2xl space-y-4 md:space-y-6 pt-12 md:pt-0">
+            
+            <!-- Badges Bar -->
+            <div class="flex flex-wrap items-center gap-2.5">
+              <span class="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-purple-600/30 border border-purple-500/50 text-purple-300 backdrop-blur-md">
+                <%= anime_sym_icon("sparkles", class: "w-3.5 h-3.5 text-purple-400") %>
+                Spotlight Pick
+              </span>
+              <span class="flex items-center gap-1 px-2.5 py-1 rounded-md bg-amber-500/20 border border-amber-500/40 text-amber-300 text-xs font-bold">
+                <%= anime_sym_icon("star", class: "w-3.5 h-3.5 fill-current text-amber-400") %>
+                <%= anime.formatted_rating %>
+              </span>
+              <span class="text-xs text-zinc-400 font-medium"><%= anime.release_year %></span>
+              <span class="text-xs text-zinc-400">•</span>
+              <span class="text-xs text-zinc-400 font-medium"><%= anime.studio %></span>
+              <span class="text-xs text-zinc-400">•</span>
+              <span class="px-2 py-0.5 rounded text-[10px] font-bold bg-zinc-800 text-zinc-300 uppercase"><%= anime.age_rating %></span>
+            </div>
+
+            <!-- Title in Japanese & English -->
+            <div class="space-y-1">
+              <% if anime.japanese_title.present? %>
+                <p class="text-sm md:text-base font-semibold text-purple-400/90 tracking-wide font-mono">
+                  <%= anime.japanese_title %>
+                </p>
+              <% end %>
+              <h1 class="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black text-white tracking-tight leading-[1.1]">
+                <%= anime.title %>
+              </h1>
+            </div>
+
+            <!-- Synopsis Excerpt -->
+            <p class="text-sm md:text-base text-zinc-300 leading-relaxed line-clamp-3">
+              <%= anime.synopsis %>
+            </p>
+
+            <!-- Genres Pills -->
+            <div class="flex flex-wrap gap-2">
+              <% anime.genres.each do |genre| %>
+                <%= link_to genre.name, catalog_path(genre: genre.slug), class: "px-3 py-1 rounded-full bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-800 hover:border-purple-500/50 text-xs font-medium text-zinc-300 hover:text-white transition-all backdrop-blur-sm" %>
+              <% end %>
+            </div>
+
+            <!-- Interactive Action Buttons -->
+            <div class="flex flex-wrap items-center gap-4 pt-2">
+              <% if anime.first_episode %>
+                <%= link_to anime_episode_path(anime, anime.first_episode), class: "inline-flex items-center gap-2.5 px-6 py-3.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-sm md:text-base shadow-xl shadow-purple-600/30 hover:shadow-purple-500/50 transform hover:-translate-y-0.5 transition-all" do %>
+                  <%= anime_sym_icon("play", class: "w-5 h-5 fill-current") %>
+                  <span>Watch Ep 1</span>
+                <% end %>
+              <% end %>
+
+              <% if anime.trailer_youtube_id.present? %>
+                <button type="button" 
+                        class="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl bg-zinc-900/80 hover:bg-zinc-800 border border-zinc-700/80 hover:border-purple-500/50 text-white font-semibold text-sm backdrop-blur-md transition-all hover:-translate-y-0.5"
+                        data-action="click->trailer-modal#open"
+                        data-youtube-id="<%= anime.trailer_youtube_id %>"
+                        data-title="<%= anime.title %> - Official Trailer">
+                  <%= anime_sym_icon("youtube", class: "w-5 h-5 text-red-500") %>
+                  <span>Watch Trailer</span>
+                </button>
+              <% end %>
+
+              <%= link_to anime_path(anime), class: "inline-flex items-center gap-1.5 px-4 py-3.5 rounded-xl bg-zinc-900/60 hover:bg-zinc-800/80 text-zinc-300 hover:text-white border border-zinc-800 text-sm font-semibold transition-all" do %>
+                <%= anime_sym_icon("info", class: "w-4 h-4") %>
+                <span>Details</span>
+              <% end %>
+
+              <!-- Watchlist Toggle -->
+              <div id="watchlist_hero_<%= anime.id %>" class="shrink-0">
+                <%= form_with url: toggle_watchlist_path(anime_id: anime.id), method: :post, local: false do |f| %>
+                  <button type="submit" 
+                          class="p-3.5 rounded-xl <%= in_watchlist?(anime) ? 'bg-purple-600 text-white border-purple-500' : 'bg-zinc-900/80 text-zinc-300 hover:text-white border-zinc-800 hover:border-purple-500/50' %> border backdrop-blur-md transition-all shadow-md"
+                          title="<%= in_watchlist?(anime) ? 'In Watchlist' : 'Add to Watchlist' %>">
+                    <%= in_watchlist?(anime) ? anime_sym_icon("bookmark-solid", class: "w-5 h-5 text-white") : anime_sym_icon("bookmark", class: "w-5 h-5 text-purple-400") %>
+                  </button>
+                <% end %>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+    <% end %>
+  </div>
+
+  <!-- Hero Slider Indicators & Controls -->
+  <div class="absolute bottom-6 right-6 md:right-12 z-20 flex items-center gap-2">
+    <% @hero_slides.each_with_index do |_, idx| %>
+      <button type="button" 
+              data-hero-carousel-target="indicator"
+              data-action="click->hero-carousel#goTo"
+              data-slide-index="<%= idx %>"
+              class="h-2 rounded-full transition-all duration-300 <%= idx == 0 ? 'w-8 bg-purple-500' : 'w-2.5 bg-zinc-600 hover:bg-zinc-400' %>"
+              aria-label="Go to slide <%= idx + 1 %>">
+      </button>
+    <% end %>
+  </div>
+</section>
+
+<!-- QUICK DISCOVERY & FEATURES TICKER -->
+<section class="border-y border-zinc-800/80 bg-zinc-950 py-5">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-6 text-center">
+      <div class="flex items-center justify-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-purple-900/30 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+          <%= anime_sym_icon("check", class: "w-5 h-5 text-emerald-400") %>
+        </div>
+        <div class="text-left">
+          <p class="text-xs font-bold text-white uppercase tracking-wider">100% Legal & Safe</p>
+          <p class="text-[11px] text-zinc-400">Official YouTube Embeds</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-purple-900/30 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+          <%= anime_sym_icon("tv", class: "w-5 h-5 text-purple-400") %>
+        </div>
+        <div class="text-left">
+          <p class="text-xs font-bold text-white uppercase tracking-wider">High Definition</p>
+          <p class="text-[11px] text-zinc-400">1080p & 4K Master Audio</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-purple-900/30 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+          <%= anime_sym_icon("sparkles", class: "w-5 h-5 text-pink-400") %>
+        </div>
+        <div class="text-left">
+          <p class="text-xs font-bold text-white uppercase tracking-wider">Zero Ads Popups</p>
+          <p class="text-[11px] text-zinc-400">Clean Cinematic Player</p>
+        </div>
+      </div>
+
+      <div class="flex items-center justify-center gap-3">
+        <div class="w-9 h-9 rounded-xl bg-purple-900/30 border border-purple-500/30 flex items-center justify-center text-purple-400 shrink-0">
+          <%= anime_sym_icon("layers", class: "w-5 h-5 text-cyan-400") %>
+        </div>
+        <div class="text-left">
+          <p class="text-xs font-bold text-white uppercase tracking-wider">Curated Collections</p>
+          <p class="text-[11px] text-zinc-400">Hand-Picked Masterpieces</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- MAIN CONTENT WRAPPER -->
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-16">
+
+  <!-- 1. TRENDING ANIME SECTION -->
+  <section class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-zinc-800 pb-4">
+      <div>
+        <div class="flex items-center gap-2 text-purple-400 text-xs font-bold uppercase tracking-wider mb-1">
+          <span class="w-2 h-2 rounded-full bg-purple-500 animate-ping"></span>
+          Live Popularity
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight flex items-center gap-3">
+          <span>Trending Anime Right Now</span>
+        </h2>
+      </div>
+      <%= link_to catalog_path(sort: "trending"), class: "inline-flex items-center gap-1.5 text-xs font-bold text-purple-400 hover:text-purple-300 group" do %>
+        <span>View all trending</span>
+        <%= anime_sym_icon("chevron-right", class: "w-4 h-4 transform group-hover:translate-x-1 transition-transform") %>
+      <% end %>
+    </div>
+
+    <!-- Responsive Grid of Trending Cards -->
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+      <% @trending_anime.each_with_index do |anime, index| %>
+        <%= render "shared/anime_card", anime: anime, rank: index + 1 %>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- 2. QUICK GENRE EXPLORATION ROW -->
+  <section class="space-y-4">
+    <div class="flex items-center justify-between">
+      <h3 class="text-lg font-bold text-white flex items-center gap-2">
+        <%= anime_sym_icon("filter", class: "w-4 h-4 text-purple-400") %>
+        <span>Explore by Genre</span>
+      </h3>
+      <%= link_to "View all genres", genres_path, class: "text-xs font-semibold text-zinc-400 hover:text-purple-400" %>
+    </div>
+    
+    <div class="flex items-center gap-2.5 overflow-x-auto pb-2 no-scrollbar">
+      <%= link_to "All Genres", catalog_path, class: "shrink-0 px-4 py-2 rounded-xl bg-purple-600 text-white text-xs font-bold shadow-md shadow-purple-600/30" %>
+      <% @genres.each do |genre| %>
+        <%= link_to catalog_path(genre: genre.slug), class: "shrink-0 px-4 py-2 rounded-xl bg-zinc-900 hover:bg-zinc-800 border border-zinc-800 hover:border-purple-500/50 text-xs font-semibold text-zinc-300 hover:text-white transition-all" do %>
+          <span><%= genre.name %></span>
+          <span class="ml-1 text-[10px] text-zinc-500 font-normal">(<%= genre.animes.count %>)</span>
+        <% end %>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- 3. CURATED COLLECTIONS SPOTLIGHT -->
+  <section class="space-y-8">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-zinc-800 pb-4">
+      <div>
+        <div class="text-purple-400 text-xs font-bold uppercase tracking-wider mb-1">
+          Editorial Curation
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          Hand-Picked Collections
+        </h2>
+      </div>
+      <%= link_to collections_path, class: "inline-flex items-center gap-1.5 text-xs font-bold text-purple-400 hover:text-purple-300 group" do %>
+        <span>Browse all curations</span>
+        <%= anime_sym_icon("chevron-right", class: "w-4 h-4 transform group-hover:translate-x-1 transition-transform") %>
+      <% end %>
+    </div>
+
+    <!-- Collection Banners Grid -->
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <% @featured_collections.each do |collection| %>
+        <div class="relative group rounded-3xl bg-zinc-900/60 border border-zinc-800 hover:border-purple-500/50 p-6 sm:p-8 flex flex-col justify-between overflow-hidden shadow-xl hover:shadow-purple-900/20 transition-all duration-300">
+          
+          <!-- Background decoration -->
+          <div class="absolute -right-12 -bottom-12 w-48 h-48 bg-purple-600/10 rounded-full blur-2xl group-hover:bg-purple-600/20 transition-all"></div>
+
+          <div class="space-y-3 relative z-10">
+            <div class="flex items-center justify-between gap-2">
+              <span class="px-3 py-1 rounded-full text-xs font-bold bg-purple-900/50 border border-purple-500/40 text-purple-300">
+                <%= collection.badge %>
+              </span>
+              <span class="text-xs text-zinc-400 font-medium"><%= collection.animes.count %> titles included</span>
+            </div>
+
+            <h3 class="text-xl sm:text-2xl font-black text-white group-hover:text-purple-300 transition-colors">
+              <%= link_to collection.title, collection_path(collection) %>
+            </h3>
+
+            <p class="text-xs sm:text-sm text-zinc-400 leading-relaxed line-clamp-2">
+              <%= collection.curator_note %>
+            </p>
+          </div>
+
+          <!-- Mini Posters Preview Strip -->
+          <div class="mt-6 pt-4 border-t border-zinc-800/80 flex items-center justify-between gap-4 relative z-10">
+            <div class="flex items-center -space-x-3 overflow-hidden">
+              <% collection.animes.first(4).each do |a| %>
+                <img src="<%= a.poster_url %>" 
+                     alt="<%= a.title %>" 
+                     class="w-10 h-14 object-cover rounded-lg border-2 border-zinc-900 shadow-md">
+              <% end %>
+            </div>
+
+            <%= link_to collection_path(collection), class: "inline-flex items-center gap-1.5 px-4 py-2 rounded-xl bg-zinc-800 group-hover:bg-purple-600 text-zinc-200 group-hover:text-white text-xs font-bold transition-all shadow-md" do %>
+              <span>Explore Collection</span>
+              <%= anime_sym_icon("chevron-right", class: "w-3.5 h-3.5") %>
+            <% end %>
+          </div>
+
+        </div>
+      <% end %>
+    </div>
+  </section>
+
+  <!-- 4. TOP RATED MASTERPIECES -->
+  <section class="space-y-6">
+    <div class="flex flex-col sm:flex-row sm:items-end justify-between gap-3 border-b border-zinc-800 pb-4">
+      <div>
+        <div class="text-amber-400 text-xs font-bold uppercase tracking-wider mb-1 flex items-center gap-1.5">
+          <%= anime_sym_icon("star", class: "w-3.5 h-3.5 fill-current") %>
+          Highest Rated All-Time
+        </div>
+        <h2 class="text-2xl sm:text-3xl font-black text-white tracking-tight">
+          Critical Acclaim & Fan Favorites
+        </h2>
+      </div>
+      <%= link_to catalog_path(sort: "rating"), class: "inline-flex items-center gap-1.5 text-xs font-bold text-purple-400 hover:text-purple-300 group" do %>
+        <span>See top rated</span>
+        <%= anime_sym_icon("chevron-right", class: "w-4 h-4 transform group-hover:translate-x-1 transition-transform") %>
+      <% end %>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-4 md:gap-6">
+      <% @top_rated_anime.first(4).each do |anime| %>
+        <%= render "shared/anime_card", anime: anime %>
+      <% end %>
+    </div>
+  </section>
+
+</div>

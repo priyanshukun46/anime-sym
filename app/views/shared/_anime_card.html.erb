@@ -1,0 +1,91 @@
+<% anime = local_assigns[:anime] %>
+<% rank = local_assigns[:rank] %>
+
+<div class="group relative flex flex-col rounded-2xl bg-zinc-900/60 border border-zinc-800/80 hover:border-purple-500/50 overflow-hidden shadow-lg hover:shadow-purple-900/20 transition-all duration-300 transform hover:-translate-y-1">
+  <!-- Poster Image & Overlay -->
+  <div class="relative aspect-[3/4] w-full overflow-hidden bg-zinc-950">
+    <img src="<%= anime.poster_url %>" 
+         alt="<%= anime.title %>" 
+         loading="lazy"
+         class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105">
+
+    <!-- Subtle gradient overlay -->
+    <div class="absolute inset-0 bg-gradient-to-t from-zinc-950 via-zinc-950/20 to-transparent opacity-80 group-hover:opacity-60 transition-opacity"></div>
+
+    <!-- Optional Rank Number Badge (for Trending items) -->
+    <% if rank %>
+      <div class="absolute top-3 left-3 w-8 h-8 rounded-lg bg-zinc-950/90 border border-purple-500/40 backdrop-blur-md flex items-center justify-center font-black text-sm text-purple-400 shadow-md">
+        #<%= rank %>
+      </div>
+    <% end %>
+
+    <!-- Top Right: Rating & Audio Badges -->
+    <div class="absolute top-3 right-3 flex flex-col items-end gap-1.5">
+      <div class="flex items-center gap-1 px-2 py-0.5 rounded-md bg-zinc-950/85 backdrop-blur-md border border-amber-500/30 text-amber-400 text-xs font-bold shadow-md">
+        <%= anime_sym_icon("star", class: "w-3 h-3 text-amber-400 fill-current") %>
+        <span><%= anime.formatted_rating %></span>
+      </div>
+
+      <div class="flex items-center gap-1">
+        <% if anime.sub_available %>
+          <span class="px-1.5 py-0.2 rounded bg-purple-950/80 border border-purple-500/40 text-[10px] font-semibold text-purple-300">SUB</span>
+        <% end %>
+        <% if anime.dub_available %>
+          <span class="px-1.5 py-0.2 rounded bg-indigo-950/80 border border-indigo-500/40 text-[10px] font-semibold text-indigo-300">DUB</span>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Quick Play Hover Overlay Button -->
+    <div class="absolute inset-0 flex items-center justify-center gap-3 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-black/40 backdrop-blur-[2px]">
+      <% if anime.first_episode %>
+        <%= link_to anime_episode_path(anime, anime.first_episode), class: "w-12 h-12 rounded-full bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center shadow-lg shadow-purple-600/40 transform hover:scale-110 transition-all", title: "Play Episode 1" do %>
+          <%= anime_sym_icon("play", class: "w-6 h-6 ml-0.5 fill-current") %>
+        <% end %>
+      <% else %>
+        <%= link_to anime_path(anime), class: "w-12 h-12 rounded-full bg-purple-600 hover:bg-purple-500 text-white flex items-center justify-center shadow-lg shadow-purple-600/40 transform hover:scale-110 transition-all", title: "View Details" do %>
+          <%= anime_sym_icon("info", class: "w-6 h-6") %>
+        <% end %>
+      <% end %>
+
+      <!-- Watchlist Button with Turbo Stream -->
+      <div id="watchlist_toggle_<%= anime.id %>">
+        <%= form_with url: toggle_watchlist_path(anime_id: anime.id), method: :post, local: false do |f| %>
+          <button type="submit" 
+                  class="w-10 h-10 rounded-full <%= in_watchlist?(anime) ? 'bg-purple-600 text-white' : 'bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white' %> border border-zinc-700/80 flex items-center justify-center backdrop-blur-md shadow-md transition-all hover:scale-105"
+                  title="<%= in_watchlist?(anime) ? 'Remove from Watchlist' : 'Add to Watchlist' %>">
+            <%= in_watchlist?(anime) ? anime_sym_icon("bookmark-solid", class: "w-5 h-5 text-white") : anime_sym_icon("bookmark", class: "w-5 h-5 text-purple-400") %>
+          </button>
+        <% end %>
+      </div>
+    </div>
+
+    <!-- Bottom info strip on poster -->
+    <div class="absolute bottom-2 left-3 right-3 flex items-center justify-between text-[11px] text-zinc-400 font-medium">
+      <span><%= anime.release_year %></span>
+      <span><%= anime.episode_count_display %></span>
+    </div>
+  </div>
+
+  <!-- Card Info -->
+  <div class="p-4 flex flex-col flex-grow justify-between gap-3">
+    <div>
+      <% if anime.japanese_title.present? %>
+        <p class="text-[11px] font-medium text-purple-400/80 line-clamp-1 mb-0.5"><%= anime.japanese_title %></p>
+      <% end %>
+      <h3 class="font-bold text-sm md:text-base text-white group-hover:text-purple-300 transition-colors line-clamp-1">
+        <%= link_to anime.title, anime_path(anime), class: "focus:outline-none" %>
+      </h3>
+    </div>
+
+    <!-- Genres -->
+    <div class="flex flex-wrap gap-1.5">
+      <% anime.genres.first(2).each do |genre| %>
+        <%= link_to genre.name, catalog_path(genre: genre.slug), class: "px-2 py-0.5 rounded-full bg-zinc-800/80 hover:bg-zinc-700 text-[10px] font-medium text-zinc-300 hover:text-white transition-colors" %>
+      <% end %>
+      <% if anime.studio.present? %>
+        <span class="ml-auto text-[11px] text-zinc-500 font-medium"><%= anime.studio %></span>
+      <% end %>
+    </div>
+  </div>
+</div>

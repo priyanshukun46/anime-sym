@@ -1,0 +1,40 @@
+<% content_for :title, "#{@collection.title} - Anime Sym Curations" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+  
+  <div class="relative rounded-3xl bg-gradient-to-r from-zinc-900 via-purple-950/30 to-zinc-900 border border-zinc-800/80 p-8 sm:p-12 overflow-hidden shadow-2xl">
+    <div class="relative z-10 max-w-3xl space-y-4">
+      <nav class="flex items-center gap-2 text-xs text-zinc-400 mb-2">
+        <%= link_to "Collections", collections_path, class: "hover:text-purple-400" %>
+        <span>/</span>
+        <span class="text-zinc-200 font-semibold"><%= @collection.title %></span>
+      </nav>
+
+      <span class="inline-flex px-3 py-1 rounded-full text-xs font-bold bg-purple-950/80 border border-purple-500/40 text-purple-300">
+        <%= @collection.badge %>
+      </span>
+
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
+        <%= @collection.title %>
+      </h1>
+
+      <p class="text-sm md:text-base text-zinc-300 leading-relaxed max-w-2xl">
+        <%= @collection.curator_note %>
+      </p>
+    </div>
+  </div>
+
+  <div class="space-y-4">
+    <div class="flex items-center justify-between text-xs text-zinc-400 pb-2 border-b border-zinc-800">
+      <span>Curated Titles in this Collection: <strong class="text-white"><%= @animes.count %></strong></span>
+      <span>Official Licensed Broadcasts</span>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6">
+      <% @animes.each_with_index do |anime, idx| %>
+        <%= render "shared/anime_card", anime: anime, rank: idx + 1 %>
+      <% end %>
+    </div>
+  </div>
+
+</div>

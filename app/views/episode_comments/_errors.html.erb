@@ -1,0 +1,9 @@
+<% if comment.errors.any? %>
+  <div class="p-3 rounded-xl bg-rose-950/70 border border-rose-500/40 text-xs text-rose-200">
+    <ul class="list-disc list-inside space-y-1">
+      <% comment.errors.full_messages.each do |msg| %>
+        <li><%= msg %></li>
+      <% end %>
+    </ul>
+  </div>
+<% end %>

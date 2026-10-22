@@ -1,0 +1,43 @@
+<% if @results.any? %>
+  <div class="p-1 space-y-1">
+    <div class="px-3 py-1.5 text-[10px] font-bold uppercase tracking-wider text-zinc-500">
+      Matching Anime (<%= @results.size %>)
+    </div>
+    <% @results.each do |anime| %>
+      <%= link_to anime_path(anime), class: "flex items-center gap-3 p-2 rounded-xl hover:bg-zinc-800/80 transition-colors group" do %>
+        <img src="<%= anime.poster_url %>" 
+             alt="<%= anime.title %>" 
+             class="w-10 h-13 object-cover rounded-lg border border-zinc-700/60 shrink-0">
+        <div class="flex-1 min-w-0">
+          <p class="text-xs font-bold text-white group-hover:text-purple-300 transition-colors truncate">
+            <%= anime.title %>
+          </p>
+          <div class="flex items-center gap-2 mt-0.5 text-[11px] text-zinc-400">
+            <span class="flex items-center gap-0.5 text-amber-400 font-semibold">
+              <%= anime_sym_icon("star", class: "w-2.5 h-2.5 fill-current") %>
+              <%= anime.formatted_rating %>
+            </span>
+            <span>•</span>
+            <span><%= anime.release_year %></span>
+            <span>•</span>
+            <span class="truncate"><%= anime.studio %></span>
+          </div>
+        </div>
+        <div class="shrink-0 text-zinc-500 group-hover:text-purple-400">
+          <%= anime_sym_icon("chevron-right", class: "w-4 h-4") %>
+        </div>
+      <% end %>
+    <% end %>
+
+    <div class="pt-2 border-t border-zinc-800 px-2">
+      <%= link_to catalog_path(q: params[:q]), class: "block w-full text-center py-2 text-xs font-bold text-purple-400 hover:text-purple-300 hover:bg-purple-950/30 rounded-lg transition-colors" do %>
+        View all results in full catalog &rarr;
+      <% end %>
+    </div>
+  </div>
+<% else %>
+  <div class="p-4 text-center">
+    <p class="text-xs text-zinc-400">No titles found matching "<span class="text-zinc-200 font-semibold"><%= params[:q] %></span>"</p>
+    <%= link_to "Browse full catalog", catalog_path, class: "mt-2 inline-block text-xs font-bold text-purple-400 hover:underline" %>
+  </div>
+<% end %>

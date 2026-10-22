@@ -1,0 +1,21 @@
+<div id="flash-messages" class="fixed bottom-6 right-6 z-50 flex flex-col gap-3 max-w-sm pointer-events-none">
+  <% flash.each do |type, message| %>
+    <% is_alert = (type.to_s == "alert" || type.to_s == "error") %>
+    <div data-controller="toast" 
+         class="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-xl border transition-all duration-300 transform translate-y-0 opacity-100 <%= is_alert ? 'bg-rose-950/90 border-rose-500/40 text-rose-200' : 'bg-zinc-900/90 border-purple-500/40 text-purple-200' %>">
+      <div class="shrink-0">
+        <% if is_alert %>
+          <span class="w-2 h-2 rounded-full bg-rose-500 block"></span>
+        <% else %>
+          <%= anime_sym_icon("sparkles", class: "w-4 h-4 text-purple-400") %>
+        <% end %>
+      </div>
+      <p class="text-sm font-medium"><%= message %></p>
+      <button type="button" 
+              data-action="click->toast#close"
+              class="ml-auto text-zinc-400 hover:text-white p-1">
+        <%= anime_sym_icon("close", class: "w-4 h-4") %>
+      </button>
+    </div>
+  <% end %>
+</div>

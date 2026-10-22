@@ -1,0 +1,75 @@
+<!-- Mobile Drawer Backdrop & Panel -->
+<div data-mobile-menu-target="backdrop" 
+     class="hidden fixed inset-0 z-50 bg-black/80 backdrop-blur-md transition-opacity duration-300 opacity-0"
+     data-action="click->mobile-menu#close"></div>
+
+<div data-mobile-menu-target="drawer" 
+     class="fixed top-0 right-0 bottom-0 z-50 w-80 max-w-[85vw] bg-zinc-950/95 border-l border-zinc-800 shadow-2xl p-6 flex flex-col justify-between transform translate-x-full transition-transform duration-300 ease-in-out">
+  <div>
+    <!-- Header with Close Button -->
+    <div class="flex items-center justify-between pb-6 border-b border-zinc-800">
+      <div class="flex items-center gap-2">
+        <div class="w-8 h-8 rounded-lg bg-purple-600 flex items-center justify-center text-white">
+          <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M12 4v16m8-8H4m14.5 6.5L5.5 5.5" />
+          </svg>
+        </div>
+        <span class="font-black text-lg text-white">ANIME<span class="text-purple-400">SYM</span></span>
+      </div>
+      <button type="button" 
+              class="p-2 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800"
+              data-action="click->mobile-menu#close">
+        <%= anime_sym_icon("close", class: "w-6 h-6") %>
+      </button>
+    </div>
+
+    <!-- Mobile Search Form -->
+    <div class="mt-6">
+      <%= form_with url: catalog_path, method: :get, local: true do |f| %>
+        <div class="relative">
+          <span class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-zinc-400">
+            <%= anime_sym_icon("search", class: "w-4 h-4") %>
+          </span>
+          <%= f.text_field :q, 
+                value: params[:q],
+                placeholder: "Search anime catalog...", 
+                class: "w-full pl-9 pr-4 py-2.5 text-sm bg-zinc-900 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-purple-500" %>
+        </div>
+      <% end %>
+    </div>
+
+    <!-- Mobile Navigation Links -->
+    <nav class="mt-6 flex flex-col space-y-1">
+      <%= link_to root_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-colors #{current_page?(root_path) ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30' : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'}" do %>
+        <span>Home</span>
+      <% end %>
+      <%= link_to catalog_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-colors #{current_page?(catalog_path) ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30' : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'}" do %>
+        <span>Anime Catalog</span>
+      <% end %>
+      <%= link_to genres_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-colors #{current_page?(genres_path) ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30' : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'}" do %>
+        <span>Browse Genres</span>
+      <% end %>
+      <%= link_to collections_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-colors #{current_page?(collections_path) ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30' : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'}" do %>
+        <span>Curated Collections</span>
+      <% end %>
+      <%= link_to watchlist_path, class: "flex items-center justify-between px-4 py-3 rounded-xl text-base font-medium transition-colors #{current_page?(watchlist_path) ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30' : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'}" do %>
+        <span>My Watchlist</span>
+        <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-purple-600 text-white">
+          <%= watchlist_count %>
+        </span>
+      <% end %>
+      <%= link_to about_path, class: "flex items-center gap-3 px-4 py-3 rounded-xl text-base font-medium transition-colors #{current_page?(about_path) ? 'bg-purple-600/20 text-purple-400 border border-purple-500/30' : 'text-zinc-300 hover:bg-zinc-900 hover:text-white'}" do %>
+        <span>About & Legal</span>
+      <% end %>
+    </nav>
+  </div>
+
+  <!-- Drawer Footer -->
+  <div class="pt-6 border-t border-zinc-800 text-xs text-zinc-500 space-y-2">
+    <div class="flex items-center gap-2 text-purple-400 font-medium">
+      <%= anime_sym_icon("check", class: "w-4 h-4 text-emerald-400") %>
+      <span>100% Authorized & Legal Streams</span>
+    </div>
+    <p>Powered by official YouTube embeds & publisher channels.</p>
+  </div>
+</div>

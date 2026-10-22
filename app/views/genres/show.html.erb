@@ -1,0 +1,39 @@
+<% content_for :title, "#{@genre.name} Anime - Anime Sym" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+  
+  <div class="relative rounded-3xl bg-gradient-to-r from-zinc-900 via-purple-950/20 to-zinc-900 border border-zinc-800/80 p-8 sm:p-10 overflow-hidden shadow-2xl">
+    <div class="relative z-10 max-w-2xl space-y-3">
+      <nav class="flex items-center gap-2 text-xs text-zinc-400 mb-2">
+        <%= link_to "Genres", genres_path, class: "hover:text-purple-400" %>
+        <span>/</span>
+        <span class="text-zinc-200 font-semibold"><%= @genre.name %></span>
+      </nav>
+
+      <h1 class="text-3xl sm:text-4xl font-black text-white tracking-tight">
+        <%= @genre.name %> Anime
+      </h1>
+      <p class="text-sm text-zinc-400 leading-relaxed">
+        <%= @genre.description %>
+      </p>
+
+      <div class="pt-2">
+        <%= link_to "Open in Catalog with Filters &rarr;".html_safe, catalog_path(genre: @genre.slug), class: "text-xs font-bold text-purple-400 hover:underline" %>
+      </div>
+    </div>
+  </div>
+
+  <div class="space-y-4">
+    <div class="flex items-center justify-between text-xs text-zinc-400 pb-2 border-b border-zinc-800">
+      <span>Showing <strong class="text-white"><%= @animes.count %></strong> titles</span>
+      <span>Sorted by Popularity & Rating</span>
+    </div>
+
+    <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6">
+      <% @animes.each do |anime| %>
+        <%= render "shared/anime_card", anime: anime %>
+      <% end %>
+    </div>
+  </div>
+
+</div>

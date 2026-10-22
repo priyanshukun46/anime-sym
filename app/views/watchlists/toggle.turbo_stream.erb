@@ -1,0 +1,57 @@
+<!-- Update Navbar Watchlist Badge -->
+<%= turbo_stream.update "watchlist_badge" do %>
+  <%= watchlist_count %>
+<% end %>
+
+<!-- Update Card Toggle Button if present -->
+<%= turbo_stream.replace "watchlist_toggle_#{@anime.id}" do %>
+  <div id="watchlist_toggle_<%= @anime.id %>">
+    <%= form_with url: toggle_watchlist_path(anime_id: @anime.id), method: :post, local: false do |f| %>
+      <button type="submit" 
+              class="w-10 h-10 rounded-full <%= @in_watchlist ? 'bg-purple-600 text-white' : 'bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white' %> border border-zinc-700/80 flex items-center justify-center backdrop-blur-md shadow-md transition-all hover:scale-105"
+              title="<%= @in_watchlist ? 'Remove from Watchlist' : 'Add to Watchlist' %>">
+        <%= @in_watchlist ? anime_sym_icon("bookmark-solid", class: "w-5 h-5 text-white") : anime_sym_icon("bookmark", class: "w-5 h-5 text-purple-400") %>
+      </button>
+    <% end %>
+  </div>
+<% end %>
+
+<!-- Update Detail Toggle Button if present -->
+<%= turbo_stream.replace "watchlist_detail_#{@anime.id}" do %>
+  <div id="watchlist_detail_<%= @anime.id %>">
+    <%= form_with url: toggle_watchlist_path(anime_id: @anime.id), method: :post, local: false do |f| %>
+      <button type="submit" 
+              class="inline-flex items-center gap-2 px-5 py-3.5 rounded-xl <%= @in_watchlist ? 'bg-purple-600 text-white' : 'bg-zinc-900/90 hover:bg-zinc-800 text-zinc-300 hover:text-white border border-zinc-700' %> font-semibold text-sm transition-all shadow-md">
+        <%= @in_watchlist ? anime_sym_icon("bookmark-solid", class: "w-5 h-5 text-white") : anime_sym_icon("bookmark", class: "w-5 h-5 text-purple-400") %>
+        <span><%= @in_watchlist ? "In Watchlist" : "Add to Watchlist" %></span>
+      </button>
+    <% end %>
+  </div>
+<% end %>
+
+<!-- Update Hero Toggle Button if present -->
+<%= turbo_stream.replace "watchlist_hero_#{@anime.id}" do %>
+  <div id="watchlist_hero_<%= @anime.id %>" class="shrink-0">
+    <%= form_with url: toggle_watchlist_path(anime_id: @anime.id), method: :post, local: false do |f| %>
+      <button type="submit" 
+              class="p-3.5 rounded-xl <%= @in_watchlist ? 'bg-purple-600 text-white border-purple-500' : 'bg-zinc-900/80 text-zinc-300 hover:text-white border-zinc-800 hover:border-purple-500/50' %> border backdrop-blur-md transition-all shadow-md"
+              title="<%= @in_watchlist ? 'In Watchlist' : 'Add to Watchlist' %>">
+        <%= @in_watchlist ? anime_sym_icon("bookmark-solid", class: "w-5 h-5 text-white") : anime_sym_icon("bookmark", class: "w-5 h-5 text-purple-400") %>
+      </button>
+    <% end %>
+  </div>
+<% end %>
+
+<!-- If removed while on watchlist index page, remove the card -->
+<% unless @in_watchlist %>
+  <%= turbo_stream.remove "watchlist_card_#{@anime.id}" %>
+<% end %>
+
+<!-- Toast notification -->
+<%= turbo_stream.append "flash-messages" do %>
+  <div data-controller="toast" 
+       class="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-xl border border-purple-500/40 bg-zinc-900/90 text-purple-200 transition-all duration-300">
+    <%= anime_sym_icon("sparkles", class: "w-4 h-4 text-purple-400") %>
+    <p class="text-sm font-medium"><%= @status_message %></p>
+  </div>
+<% end %>

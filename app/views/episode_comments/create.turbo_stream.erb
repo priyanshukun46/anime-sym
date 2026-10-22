@@ -1,0 +1,61 @@
+<%= turbo_stream.prepend "episode_comments_list", partial: "episode_comments/comment", locals: { comment: @comment } %>
+
+<%= turbo_stream.update "comments_count" do %>
+  <%= @episode.episode_comments.count %> comments
+<% end %>
+
+<%= turbo_stream.update "comment_form_errors", "" %>
+
+<%= turbo_stream.replace "new_episode_comment_form" do %>
+  <%= form_with model: [@anime, @episode, EpisodeComment.new], 
+                url: anime_episode_comments_path(@anime, @episode), 
+                id: "new_episode_comment_form",
+                class: "space-y-3" do |f| %>
+    
+    <div id="comment_form_errors"></div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-12 gap-3">
+      <div class="sm:col-span-4">
+        <%= f.text_field :user_name, 
+              value: @comment.user_name,
+              placeholder: "Your Name / Handle", 
+              class: "w-full px-3.5 py-2 text-xs bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-200 placeholder-zinc-500 focus:outline-none focus:border-purple-500" %>
+      </div>
+      <div class="sm:col-span-8">
+        <div class="flex items-center gap-2">
+          <span class="text-[11px] text-zinc-400 font-semibold uppercase shrink-0">Reaction:</span>
+          <%= f.select :reaction_type, 
+                options_for_select([
+                  ["🔥 Fire Sakuga", "fire"],
+                  ["⚡ Pure Hype", "hype"],
+                  ["😭 Emotional / Tears", "tears"],
+                  ["🤯 Mind Blown", "mindblown"],
+                  ["💖 Wholesome", "wholesome"]
+                ], "fire"),
+                {},
+                class: "w-full px-3 py-2 text-xs bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-300 focus:outline-none focus:border-purple-500 cursor-pointer" %>
+        </div>
+      </div>
+    </div>
+
+    <div class="relative">
+      <%= f.text_area :body, 
+            rows: 2, 
+            placeholder: "Share your thoughts on this episode...", 
+            required: true,
+            class: "w-full p-3 text-sm bg-zinc-950 border border-zinc-800 rounded-xl text-zinc-100 placeholder-zinc-500 focus:outline-none focus:border-purple-500 focus:ring-1 focus:ring-purple-500/50" %>
+    </div>
+
+    <div class="flex justify-end">
+      <%= f.submit "Post Impression", class: "px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-600/30 transition-all cursor-pointer" %>
+    </div>
+  <% end %>
+<% end %>
+
+<%= turbo_stream.append "flash-messages" do %>
+  <div data-controller="toast" 
+       class="pointer-events-auto flex items-center gap-3 px-4 py-3 rounded-xl shadow-2xl backdrop-blur-xl border border-purple-500/40 bg-zinc-900/90 text-purple-200 transition-all duration-300">
+    <%= anime_sym_icon("sparkles", class: "w-4 h-4 text-purple-400") %>
+    <p class="text-sm font-medium">Your impression was posted!</p>
+  </div>
+<% end %>

@@ -1,0 +1,174 @@
+<% content_for :title, "Anime Catalog & Search - Anime Sym" %>
+
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10 space-y-8">
+  
+  <!-- Catalog Header Banner -->
+  <div class="relative rounded-3xl bg-gradient-to-r from-zinc-900 via-purple-950/20 to-zinc-900 border border-zinc-800/80 p-8 sm:p-10 overflow-hidden shadow-2xl">
+    <div class="absolute -right-16 -top-16 w-64 h-64 bg-purple-600/10 rounded-full blur-3xl pointer-events-none"></div>
+
+    <div class="relative z-10 max-w-3xl space-y-3">
+      <div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-purple-900/40 border border-purple-500/30 text-xs font-bold text-purple-300">
+        <%= anime_sym_icon("layers", class: "w-3.5 h-3.5") %>
+        <span>Verified Official Catalog</span>
+      </div>
+      <h1 class="text-3xl sm:text-4xl md:text-5xl font-black text-white tracking-tight">
+        Browse & Discover Anime
+      </h1>
+      <p class="text-sm md:text-base text-zinc-400 leading-relaxed">
+        Explore legal streaming anime titles, complete with Japanese & English audio, full episode guides, and official YouTube broadcasts.
+      </p>
+    </div>
+  </div>
+
+  <!-- Search & Filter Controls -->
+  <div class="bg-zinc-900/80 border border-zinc-800 rounded-2xl p-5 sm:p-6 shadow-xl backdrop-blur-md">
+    <%= form_with url: catalog_path, method: :get, data: { turbo_frame: "anime_catalog_results", turbo_action: "advance" }, class: "space-y-4" do |f| %>
+      
+      <!-- Top Row: Search bar & Sort -->
+      <div class="grid grid-cols-1 md:grid-cols-12 gap-3">
+        <!-- Search Input -->
+        <div class="md:col-span-8 relative">
+          <span class="absolute inset-y-0 left-0 pl-3.5 flex items-center pointer-events-none text-zinc-400">
+            <%= anime_sym_icon("search", class: "w-4 h-4") %>
+          </span>
+          <%= f.text_field :q, 
+                value: params[:q],
+                placeholder: "Search by title, studio, or keywords...", 
+                class: "w-full pl-10 pr-4 py-2.5 text-sm bg-zinc-950/90 border border-zinc-800 focus:border-purple-500 rounded-xl text-zinc-100 placeholder-zinc-500 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all" %>
+        </div>
+
+        <!-- Sort Select -->
+        <div class="md:col-span-4">
+          <%= f.select :sort, 
+                options_for_select([
+                  ["Trending Popularity", "trending"],
+                  ["Highest Rated", "rating"],
+                  ["Newest Releases", "newest"],
+                  ["Title (A-Z)", "title"],
+                  ["Episode Count", "episodes"]
+                ], params[:sort] || "trending"),
+                {}, 
+                class: "w-full px-3.5 py-2.5 text-sm bg-zinc-950/90 border border-zinc-800 focus:border-purple-500 rounded-xl text-zinc-200 focus:outline-none focus:ring-2 focus:ring-purple-500/30 transition-all cursor-pointer",
+                onchange: "this.form.requestSubmit()" %>
+        </div>
+      </div>
+
+      <!-- Filter Controls: Genre, Audio, Status -->
+      <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-2 border-t border-zinc-800/80">
+        
+        <!-- Genre Filter -->
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Genre</label>
+          <%= f.select :genre, 
+                options_for_select([["All Genres", "all"]] + @genres.map { |g| [g.name, g.slug] }, params[:genre] || "all"),
+                {},
+                class: "w-full px-3 py-2 text-xs bg-zinc-950 border border-zinc-800 focus:border-purple-500 rounded-xl text-zinc-300 focus:outline-none transition-all cursor-pointer",
+                onchange: "this.form.requestSubmit()" %>
+        </div>
+
+        <!-- Audio / Language Filter -->
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Audio & Subtitles</label>
+          <%= f.select :audio, 
+                options_for_select([
+                  ["All Audio Formats", "all"],
+                  ["Subtitled (SUB)", "sub"],
+                  ["English Dubbed (DUB)", "dub"],
+                  ["Dual Audio (SUB & DUB)", "dual"]
+                ], params[:audio] || "all"),
+                {},
+                class: "w-full px-3 py-2 text-xs bg-zinc-950 border border-zinc-800 focus:border-purple-500 rounded-xl text-zinc-300 focus:outline-none transition-all cursor-pointer",
+                onchange: "this.form.requestSubmit()" %>
+        </div>
+
+        <!-- Release Status Filter -->
+        <div>
+          <label class="block text-[11px] font-bold uppercase tracking-wider text-zinc-400 mb-1.5">Status</label>
+          <%= f.select :status, 
+                options_for_select([
+                  ["All Release Statuses", "all"],
+                  ["Completed Series", "Completed"],
+                  ["Currently Airing", "Airing"]
+                ], params[:status] || "all"),
+                {},
+                class: "w-full px-3 py-2 text-xs bg-zinc-950 border border-zinc-800 focus:border-purple-500 rounded-xl text-zinc-300 focus:outline-none transition-all cursor-pointer",
+                onchange: "this.form.requestSubmit()" %>
+        </div>
+
+      </div>
+
+      <!-- Submit and Clear Actions Row -->
+      <div class="flex items-center justify-between pt-2">
+        <div class="flex items-center gap-2">
+          <%= f.submit "Filter Catalog", class: "px-4 py-2 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-xs shadow-md shadow-purple-600/30 cursor-pointer transition-all" %>
+          
+          <% if params[:q].present? || (params[:genre].present? && params[:genre] != "all") || (params[:audio].present? && params[:audio] != "all") || (params[:status].present? && params[:status] != "all") %>
+            <%= link_to "Reset Filters", catalog_path, data: { turbo_frame: "anime_catalog_results" }, class: "px-3 py-2 rounded-xl bg-zinc-800 hover:bg-zinc-700 text-zinc-300 text-xs font-semibold transition-colors" %>
+          <% end %>
+        </div>
+
+        <!-- Active Filter Summary -->
+        <span class="text-xs text-zinc-400 font-medium">
+          Found <span class="text-white font-bold"><%= @animes.count %></span> titles
+        </span>
+      </div>
+
+    <% end %>
+  </div>
+
+  <!-- TURBO FRAME FOR CATALOG RESULTS -->
+  <%= turbo_frame_tag "anime_catalog_results" do %>
+    
+    <!-- Active filters indicator row -->
+    <% if params[:q].present? || (params[:genre].present? && params[:genre] != "all") || (params[:audio].present? && params[:audio] != "all") || (params[:status].present? && params[:status] != "all") %>
+      <div class="flex flex-wrap items-center gap-2 pb-2">
+        <span class="text-xs text-zinc-500 font-semibold uppercase tracking-wider">Active Filters:</span>
+        <% if params[:q].present? %>
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-zinc-800 border border-zinc-700 text-xs text-purple-300">
+            Query: "<%= params[:q] %>"
+          </span>
+        <% end %>
+        <% if params[:genre].present? && params[:genre] != "all" %>
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-purple-950/60 border border-purple-500/40 text-xs text-purple-300">
+            Genre: <%= params[:genre].capitalize %>
+          </span>
+        <% end %>
+        <% if params[:audio].present? && params[:audio] != "all" %>
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-zinc-800 border border-zinc-700 text-xs text-zinc-300">
+            Audio: <%= params[:audio].upcase %>
+          </span>
+        <% end %>
+        <% if params[:status].present? && params[:status] != "all" %>
+          <span class="inline-flex items-center gap-1 px-2.5 py-1 rounded-md bg-zinc-800 border border-zinc-700 text-xs text-zinc-300">
+            Status: <%= params[:status] %>
+          </span>
+        <% end %>
+        <%= link_to "Clear All", catalog_path, class: "text-xs font-bold text-rose-400 hover:text-rose-300 ml-2" %>
+      </div>
+    <% end %>
+
+    <!-- Anime Grid or Empty State -->
+    <% if @animes.any? %>
+      <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-4 gap-4 md:gap-6">
+        <% @animes.each do |anime| %>
+          <%= render "shared/anime_card", anime: anime %>
+        <% end %>
+      </div>
+    <% else %>
+      <div class="py-20 text-center rounded-3xl bg-zinc-900/40 border border-zinc-800/80 p-8 space-y-4">
+        <div class="w-16 h-16 rounded-full bg-zinc-800/80 flex items-center justify-center mx-auto text-zinc-500">
+          <%= anime_sym_icon("search", class: "w-8 h-8") %>
+        </div>
+        <h3 class="text-xl font-bold text-white">No anime found</h3>
+        <p class="text-sm text-zinc-400 max-w-md mx-auto">
+          We couldn't find any titles matching your current filter criteria. Try adjusting your query or resetting filters.
+        </p>
+        <div class="pt-2">
+          <%= link_to "Reset All Filters", catalog_path, class: "px-5 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white font-bold text-sm shadow-lg shadow-purple-600/30 transition-all inline-block" %>
+        </div>
+      </div>
+    <% end %>
+
+  <% end %>
+
+</div>
